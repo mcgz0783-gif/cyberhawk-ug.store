@@ -4,6 +4,7 @@ import cyberHawkLogo from "@/assets/cyberhawk-logo.png";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Testimonials from "@/components/Testimonials";
+import FAQ from "@/components/FAQ";
 
 const Index = () => {
   const handleWhatsApp = () => {
@@ -157,6 +158,7 @@ const Index = () => {
       </section>
 
       <Testimonials />
+      <FAQ />
       <Footer />
     </div>
   );
