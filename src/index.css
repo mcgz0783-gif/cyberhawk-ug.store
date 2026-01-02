@@ -159,7 +159,20 @@
     box-shadow: 0 2px 16px -2px hsl(210 25% 15% / 0.08);
   }
 
-  .shadow-elevated {
+.shadow-elevated {
     box-shadow: 0 8px 32px -8px hsl(210 25% 15% / 0.12);
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  .animate-float {
+    animation: float 4s ease-in-out infinite;
   }
 }
