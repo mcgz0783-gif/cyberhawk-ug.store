@@ -1,40 +1,25 @@
-import { useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState } from "react";
 import {
   BrowserRouter,
   Routes,
   Route,
   Link,
   useNavigate,
+  Navigate,
 } from "react-router-dom";
 import { ShoppingCart, Trash2 } from "lucide-react";
 
-/* ================= FIREBASE ================= */
-import { initializeApp } from "firebase/app";
+import { db, auth } from "./firebase";
 import {
-  getFirestore,
   collection,
   getDocs,
   addDoc,
 } from "firebase/firestore";
 import {
-  getAuth,
   signInWithEmailAndPassword,
   onAuthStateChanged,
+  User,
 } from "firebase/auth";
-
-/* 🔥 REPLACE WITH YOUR REAL FIREBASE CONFIG */
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "XXXX",
-  appId: "XXXX",
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
 
 /* ================= CONSTANTS ================= */
 const ADMIN_NAME = "Mucunguzi Samuel";
@@ -45,6 +30,33 @@ type Product = {
   name: string;
   price: number;
 };
+
+/* ================= AUTH CONTEXT ================= */
+type AuthContextState = { user: User | null; loading: boolean };
+const AuthContext = createContext<AuthContextState>({ user: null, loading: true });
+
+function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      setLoading(false);
+    });
+    return unsub;
+  }, []);
+
+  return (
+    <AuthContext.Provider value={{ user, loading }}>
+      {children}
+    </AuthContext.Provider>
+  );
+}
+
+function useAuth() {
+  return useContext(AuthContext);
+}
 
 /* ================= NAVBAR ================= */
 function Navbar({ cartCount }: { cartCount: number }) {
@@ -226,14 +238,15 @@ function AdminLogin() {
 function Admin() {
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
+  const { user, loading } = useAuth();
   const nav = useNavigate();
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (user) => {
-      if (!user) nav("/admin-login");
-    });
-    return unsub;
-  }, []);
+    // if loading completed and there is no user -> redirect to login
+    if (!loading && !user) {
+      nav("/admin-login");
+    }
+  }, [user, loading, nav]);
 
   async function addProduct() {
     await addDoc(collection(db, "products"), {
@@ -243,6 +256,10 @@ function Admin() {
     setProductName("");
     setPrice("");
     alert("Product added successfully");
+  }
+
+  if (loading) {
+    return <div className="p-6">Loading...</div>;
   }
 
   return (
@@ -276,6 +293,16 @@ function Admin() {
   );
 }
 
+/* ================= PROTECTED ROUTE ================= */
+function ProtectedRoute({ children }: { children: JSX.Element }) {
+  const { user, loading } = useAuth();
+
+  if (loading) return <div className="p-6">Loading...</div>;
+  if (!user) return <Navigate to="/admin-login" replace />;
+
+  return children;
+}
+
 /* ================= ROOT ================= */
 export default function App() {
   const [cart, setCart] = useState<Product[]>(() => {
@@ -288,18 +315,27 @@ export default function App() {
   }, [cart]);
 
   return (
-    <BrowserRouter>
-      <Navbar cartCount={cart.length} />
+    <AuthProvider>
+      <BrowserRouter>
+        <Navbar cartCount={cart.length} />
 
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route
-          path="/shop"
-          element={<Shop cart={cart} setCart={setCart} />}
-        />
-        <Route path="/admin-login" element={<AdminLogin />} />
-        <Route path="/admin" element={<Admin />} />
-      </Routes>
-    </BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route
+            path="/shop"
+            element={<Shop cart={cart} setCart={setCart} />}
+          />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
+              </ProtectedRoute>
+            }
+          />
+        </Routes>
+      </BrowserRouter>
+    </AuthProvider>
   );
 }
