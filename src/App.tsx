@@ -1,341 +1,274 @@
-import { createContext, useContext, useEffect, useState } from "react";
-import {
-  BrowserRouter,
-  Routes,
-  Route,
-  Link,
-  useNavigate,
-  Navigate,
-} from "react-router-dom";
-import { ShoppingCart, Trash2 } from "lucide-react";
+"use client";
 
-import { db, auth } from "./firebase";
+import { useState, useEffect, createContext, useContext } from "react";
+import { initializeApp } from "firebase/app";
 import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signOut,
+  User,
+} from "firebase/auth";
+import {
+  getFirestore,
   collection,
   getDocs,
   addDoc,
+  doc,
+  getDoc,
 } from "firebase/firestore";
-import {
-  signInWithEmailAndPassword,
-  onAuthStateChanged,
-  User,
-} from "firebase/auth";
+import { ShoppingCart, Trash2 } from "lucide-react";
+
+/* ================= FIREBASE ================= */
+const firebaseConfig = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+};
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
 
 /* ================= CONSTANTS ================= */
-const ADMIN_NAME = "Mucunguzi Samuel";
-
-/* ================= TYPES ================= */
-type Product = {
-  id?: string;
-  name: string;
-  price: number;
-};
+const ADMIN_NAME = "mucunguzi Samuel";
 
 /* ================= AUTH CONTEXT ================= */
-type AuthContextState = { user: User | null; loading: boolean };
-const AuthContext = createContext<AuthContextState>({ user: null, loading: true });
+const AuthContext = createContext<{ user: User | null; role: string | null }>({
+  user: null,
+  role: null,
+});
 
 function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => {
+    const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
-      setLoading(false);
+      if (u) {
+        const snap = await getDoc(doc(db, "users", u.uid));
+        setRole(snap.exists() ? snap.data().role : "user");
+      } else {
+        setRole(null);
+      }
     });
     return unsub;
   }, []);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider value={{ user, role }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
-function useAuth() {
-  return useContext(AuthContext);
-}
+const useAuth = () => useContext(AuthContext);
 
-/* ================= NAVBAR ================= */
-function Navbar({ cartCount }: { cartCount: number }) {
+/* ================= ROOT APP ================= */
+export default function App() {
   return (
-    <nav className="flex justify-between items-center p-4 border-b">
-      <Link to="/" className="font-bold text-lg">
-        Cyberhawk UG
-      </Link>
-
-      <div className="flex gap-6 items-center">
-        <Link to="/shop">Shop</Link>
-        <Link to="/admin">Admin</Link>
-
-        <div className="relative">
-          <ShoppingCart className="w-6 h-6" />
-          {cartCount > 0 && (
-            <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs px-2 rounded-full">
-              {cartCount}
-            </span>
-          )}
-        </div>
-      </div>
-    </nav>
+    <AuthProvider>
+      <Main />
+    </AuthProvider>
   );
 }
 
-/* ================= HOME ================= */
-function Home() {
-  return (
-    <div className="p-6">
-      <h1 className="text-3xl font-bold">Welcome to Cyberhawk UG</h1>
-      <p className="mt-2">Secure IT appliances & services</p>
-    </div>
-  );
+function Main() {
+  const { user } = useAuth();
+  return user ? <Dashboard /> : <Login />;
 }
 
-/* ================= SHOP ================= */
-function Shop({
-  cart,
-  setCart,
-}: {
-  cart: Product[];
-  setCart: React.Dispatch<React.SetStateAction<Product[]>>;
-}) {
-  const [products, setProducts] = useState<Product[]>([]);
-
-  useEffect(() => {
-    async function loadProducts() {
-      const snap = await getDocs(collection(db, "products"));
-      setProducts(
-        snap.docs.map((d) => ({ id: d.id, ...(d.data() as Product) }))
-      );
-    }
-    loadProducts();
-  }, []);
-
-  function addToCart(product: Product) {
-    setCart([...cart, product]);
-  }
-
-  function removeFromCart(index: number) {
-    setCart(cart.filter((_, i) => i !== index));
-  }
-
-  const total = cart.reduce((s, i) => s + i.price, 0);
-
-  return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">IT Appliances Shop</h1>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {products.map((p) => (
-          <div key={p.id} className="border rounded-lg p-4">
-            <h2 className="font-semibold">{p.name}</h2>
-            <p className="font-bold mt-2">
-              UGX {p.price.toLocaleString()}
-            </p>
-
-            <button
-              onClick={() => addToCart(p)}
-              className="mt-3 flex items-center gap-2 bg-black text-white px-4 py-2 rounded"
-            >
-              <ShoppingCart className="w-4 h-4" />
-              Add to Cart
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* CART */}
-      <div className="mt-10">
-        <h2 className="text-xl font-bold mb-3">Cart</h2>
-
-        {cart.length === 0 ? (
-          <p>No items in cart</p>
-        ) : (
-          <>
-            <ul className="space-y-3">
-              {cart.map((item, i) => (
-                <li
-                  key={i}
-                  className="flex justify-between items-center border p-3 rounded"
-                >
-                  <span>
-                    {item.name} – UGX{" "}
-                    {item.price.toLocaleString()}
-                  </span>
-                  <button
-                    onClick={() => removeFromCart(i)}
-                    className="text-red-600"
-                  >
-                    <Trash2 className="w-5 h-5" />
-                  </button>
-                </li>
-              ))}
-            </ul>
-
-            <div className="mt-4 font-bold">
-              Total: UGX {total.toLocaleString()}
-            </div>
-
-            <button
-              className="mt-4 bg-green-600 text-white px-6 py-3 rounded"
-              onClick={() =>
-                alert("Checkout demo: MTN MoMo / Airtel Money")
-              }
-            >
-              Checkout (MTN / Airtel)
-            </button>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
-
-/* ================= ADMIN LOGIN ================= */
-function AdminLogin() {
+/* ================= LOGIN ================= */
+function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const nav = useNavigate();
 
   async function login() {
     try {
       await signInWithEmailAndPassword(auth, email, password);
-      nav("/admin");
     } catch {
       alert("Login failed");
     }
   }
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Admin Login</h1>
-
+    <div className="p-8 max-w-sm mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Login</h1>
       <input
-        className="border p-2 w-full mb-2"
         placeholder="Email"
+        className="border p-2 w-full mb-2"
         onChange={(e) => setEmail(e.target.value)}
       />
       <input
         type="password"
-        className="border p-2 w-full mb-4"
         placeholder="Password"
+        className="border p-2 w-full mb-4"
         onChange={(e) => setPassword(e.target.value)}
       />
-
-      <button
-        onClick={login}
-        className="bg-black text-white w-full py-2 rounded"
-      >
+      <button onClick={login} className="bg-black text-white w-full py-2">
         Login
       </button>
     </div>
   );
 }
 
-/* ================= ADMIN DASHBOARD ================= */
-function Admin() {
-  const [productName, setProductName] = useState("");
-  const [price, setPrice] = useState("");
-  const { user, loading } = useAuth();
-  const nav = useNavigate();
-
-  useEffect(() => {
-    // if loading completed and there is no user -> redirect to login
-    if (!loading && !user) {
-      nav("/admin-login");
-    }
-  }, [user, loading, nav]);
-
-  async function addProduct() {
-    await addDoc(collection(db, "products"), {
-      name: productName,
-      price: Number(price),
-    });
-    setProductName("");
-    setPrice("");
-    alert("Product added successfully");
-  }
-
-  if (loading) {
-    return <div className="p-6">Loading...</div>;
-  }
+/* ================= DASHBOARD ================= */
+function Dashboard() {
+  const { user, role } = useAuth();
 
   return (
-    <div className="p-6 max-w-md mx-auto">
-      <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-      <p className="text-gray-600 mb-4">
-        Logged in as <strong>{ADMIN_NAME}</strong>
-      </p>
-
-      <input
-        className="border p-2 w-full mb-2"
-        placeholder="Product name"
-        value={productName}
-        onChange={(e) => setProductName(e.target.value)}
-      />
-
-      <input
-        className="border p-2 w-full mb-4"
-        placeholder="Price (UGX)"
-        value={price}
-        onChange={(e) => setPrice(e.target.value)}
-      />
-
+    <div className="p-6 max-w-4xl mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Welcome {user?.email}</h1>
+      <p>Role: {role}</p>
       <button
-        onClick={addProduct}
-        className="bg-black text-white w-full py-2 rounded"
+        onClick={() => signOut(auth)}
+        className="text-red-600 mb-6 border px-4 py-2"
       >
-        Add Product
+        Logout
       </button>
+
+      {role === "admin" && <AdminPanel />}
+      <Shop />
     </div>
   );
 }
 
-/* ================= PROTECTED ROUTE ================= */
-function ProtectedRoute({ children }: { children: JSX.Element }) {
-  const { user, loading } = useAuth();
+/* ================= ADMIN PANEL ================= */
+function AdminPanel() {
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
+  const [products, setProducts] = useState<any[]>([]);
 
-  if (loading) return <div className="p-6">Loading...</div>;
-  if (!user) return <Navigate to="/admin-login" replace />;
-
-  return children;
-}
-
-/* ================= ROOT ================= */
-export default function App() {
-  const [cart, setCart] = useState<Product[]>(() => {
-    const saved = localStorage.getItem("cart");
-    return saved ? JSON.parse(saved) : [];
-  });
+  async function loadProducts() {
+    const snap = await getDocs(collection(db, "products"));
+    setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  }
 
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cart));
-  }, [cart]);
+    loadProducts();
+  }, []);
+
+  async function addProduct() {
+    await addDoc(collection(db, "products"), {
+      name,
+      price: Number(price),
+      image,
+      createdBy: ADMIN_NAME,
+    });
+    setName("");
+    setPrice("");
+    setImage("");
+    loadProducts();
+  }
 
   return (
-    <AuthProvider>
-      <BrowserRouter>
-        <Navbar cartCount={cart.length} />
+    <div className="border p-4 mb-6">
+      <h2 className="text-xl font-bold mb-2">Admin Panel</h2>
+      <input
+        placeholder="Product name"
+        className="border p-2 w-full mb-2"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        placeholder="Price"
+        className="border p-2 w-full mb-2"
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+      />
+      <input
+        placeholder="Image URL"
+        className="border p-2 w-full mb-2"
+        value={image}
+        onChange={(e) => setImage(e.target.value)}
+      />
+      <button onClick={addProduct} className="bg-black text-white px-4 py-2 w-full">
+        Add Product
+      </button>
 
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route
-            path="/shop"
-            element={<Shop cart={cart} setCart={setCart} />}
-          />
-          <Route path="/admin-login" element={<AdminLogin />} />
-          <Route
-            path="/admin"
-            element={
-              <ProtectedRoute>
-                <Admin />
-              </ProtectedRoute>
-            }
-          />
-        </Routes>
-      </BrowserRouter>
-    </AuthProvider>
+      <h3 className="mt-4 font-bold">Products</h3>
+      <ul>
+        {products.map((p) => (
+          <li key={p.id} className="border p-2 mb-2 flex gap-2 items-center">
+            <img src={p.image} alt={p.name} width={50} />
+            {p.name} — {p.price} — by {p.createdBy}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+/* ================= SHOP ================= */
+function Shop() {
+  const [cart, setCart] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+
+  async function loadProducts() {
+    const snap = await getDocs(collection(db, "products"));
+    setProducts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  }
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
+
+  function addToCart(p: any) {
+    setCart([...cart, p]);
+  }
+
+  function removeFromCart(i: number) {
+    setCart(cart.filter((_, index) => index !== i));
+  }
+
+  function checkout() {
+    // MTN / Airtel demo backend
+    fetch("/api/payment", {
+      method: "POST",
+      body: JSON.stringify({ cart }),
+    }).then(() => alert("Payment request sent"));
+  }
+
+  const total = cart.reduce((s, p) => s + p.price, 0);
+
+  return (
+    <div className="border p-4">
+      <h2 className="text-xl font-bold mb-2">Shop</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {products.map((p) => (
+          <div key={p.id} className="border p-2 rounded">
+            <img src={p.image} alt={p.name} className="mb-2" />
+            <h3 className="font-bold">{p.name}</h3>
+            <p>UGX {p.price}</p>
+            <button
+              className="bg-black text-white px-2 py-1 mt-1"
+              onClick={() => addToCart(p)}
+            >
+              Add to Cart
+            </button>
+          </div>
+        ))}
+      </div>
+
+      <h3 className="mt-4 font-bold">Cart</h3>
+      <ul>
+        {cart.map((item, i) => (
+          <li key={i} className="flex justify-between border p-2 mb-1">
+            {item.name} — {item.price}
+            <button onClick={() => removeFromCart(i)} className="text-red-600">
+              <Trash2 />
+            </button>
+          </li>
+        ))}
+      </ul>
+      <div className="font-bold mt-2">Total: UGX {total}</div>
+      <button
+        onClick={checkout}
+        className="bg-green-600 text-white px-4 py-2 mt-2"
+      >
+        Checkout (MTN/Airtel)
+      </button>
+    </div>
   );
 }
