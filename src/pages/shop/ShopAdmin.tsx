@@ -1,28 +1,93 @@
-import { useState } from "react";
-import { Plus, Package } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Package, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import productsData from "@/data/products.json";
-import { Product } from "@/components/shop/ProductCard";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { supabase } from "@/integrations/supabase/client";
 
 const ADMIN_NAME = "Mucunguzi Samuel";
+
+interface Category {
+  id: string;
+  name: string;
+}
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  category_id: string | null;
+  categories?: { name: string } | null;
+}
 
 export function ShopAdmin() {
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
-  const [products] = useState<Product[]>(productsData as Product[]);
+  const [categoryId, setCategoryId] = useState("");
+  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  function handleAddProduct() {
+  async function loadData() {
+    setLoading(true);
+    
+    const { data: categoriesData } = await supabase
+      .from("categories")
+      .select("id, name")
+      .order("name");
+    
+    if (categoriesData) {
+      setCategories(categoriesData);
+    }
+
+    const { data: productsData } = await supabase
+      .from("products")
+      .select("id, name, price, category_id, categories(name)")
+      .order("created_at", { ascending: false });
+    
+    if (productsData) {
+      setProducts(productsData as Product[]);
+    }
+    
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadData();
+  }, []);
+
+  async function handleAddProduct() {
     if (!productName || !price) {
-      alert("Please fill in all fields");
+      alert("Please fill in product name and price");
       return;
     }
-    // Demo: In production, this would save to database
-    alert(`Product "${productName}" added successfully!\n\nNote: Enable Lovable Cloud for persistent storage.`);
+
+    const { error } = await supabase.from("products").insert({
+      name: productName,
+      price: Number(price),
+      category_id: categoryId || null,
+    });
+
+    if (error) {
+      alert("Failed to add product: " + error.message);
+      return;
+    }
+
     setProductName("");
     setPrice("");
+    setCategoryId("");
+    loadData();
+  }
+
+  async function handleDeleteProduct(id: string) {
+    const { error } = await supabase.from("products").delete().eq("id", id);
+    if (error) {
+      alert("Failed to delete product: " + error.message);
+      return;
+    }
+    loadData();
   }
 
   return (
@@ -62,6 +127,21 @@ export function ShopAdmin() {
               onChange={(e) => setPrice(e.target.value)}
             />
           </div>
+          <div>
+            <Label htmlFor="category">Category</Label>
+            <Select value={categoryId} onValueChange={setCategoryId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category" />
+              </SelectTrigger>
+              <SelectContent>
+                {categories.map((cat) => (
+                  <SelectItem key={cat.id} value={cat.id}>
+                    {cat.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
           <Button onClick={handleAddProduct} className="w-full">
             Add Product
           </Button>
@@ -77,19 +157,40 @@ export function ShopAdmin() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <ul className="space-y-3">
-            {products.map((product) => (
-              <li
-                key={product.id}
-                className="flex justify-between items-center border rounded-lg p-3"
-              >
-                <span className="font-medium">{product.name}</span>
-                <span className="text-muted-foreground">
-                  UGX {product.price.toLocaleString()}
-                </span>
-              </li>
-            ))}
-          </ul>
+          {loading ? (
+            <p className="text-muted-foreground">Loading...</p>
+          ) : (
+            <ul className="space-y-3">
+              {products.map((product) => (
+                <li
+                  key={product.id}
+                  className="flex justify-between items-center border rounded-lg p-3"
+                >
+                  <div>
+                    <span className="font-medium">{product.name}</span>
+                    {product.categories?.name && (
+                      <span className="text-xs ml-2 text-muted-foreground">
+                        ({product.categories.name})
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-muted-foreground">
+                      UGX {product.price.toLocaleString()}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteProduct(product.id)}
+                      className="text-destructive hover:text-destructive"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
         </CardContent>
       </Card>
     </div>
