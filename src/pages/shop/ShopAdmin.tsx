@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Plus, Package, Trash2 } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Plus, Package, Trash2, Upload, Image } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +18,7 @@ interface Product {
   id: string;
   name: string;
   price: number;
+  image_url: string | null;
   category_id: string | null;
   categories?: { name: string } | null;
 }
@@ -29,6 +30,10 @@ export function ShopAdmin() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   async function loadData() {
     setLoading(true);
@@ -44,7 +49,7 @@ export function ShopAdmin() {
 
     const { data: productsData } = await supabase
       .from("products")
-      .select("id, name, price, category_id, categories(name)")
+      .select("id, name, price, image_url, category_id, categories(name)")
       .order("created_at", { ascending: false });
     
     if (productsData) {
@@ -58,26 +63,68 @@ export function ShopAdmin() {
     loadData();
   }, []);
 
+  function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  }
+
+  async function uploadImage(file: File): Promise<string | null> {
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const { error } = await supabase.storage
+      .from('product-images')
+      .upload(fileName, file);
+
+    if (error) {
+      console.error('Upload error:', error);
+      return null;
+    }
+
+    const { data } = supabase.storage
+      .from('product-images')
+      .getPublicUrl(fileName);
+
+    return data.publicUrl;
+  }
+
   async function handleAddProduct() {
     if (!productName || !price) {
       alert("Please fill in product name and price");
       return;
     }
 
+    setUploading(true);
+    let imageUrl: string | null = null;
+
+    if (imageFile) {
+      imageUrl = await uploadImage(imageFile);
+    }
+
     const { error } = await supabase.from("products").insert({
       name: productName,
       price: Number(price),
       category_id: categoryId || null,
+      image_url: imageUrl,
     });
 
     if (error) {
       alert("Failed to add product: " + error.message);
+      setUploading(false);
       return;
     }
 
     setProductName("");
     setPrice("");
     setCategoryId("");
+    setImageFile(null);
+    setImagePreview(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setUploading(false);
     loadData();
   }
 
@@ -142,8 +189,33 @@ export function ShopAdmin() {
               </SelectContent>
             </Select>
           </div>
-          <Button onClick={handleAddProduct} className="w-full">
-            Add Product
+          <div>
+            <Label htmlFor="image">Product Image</Label>
+            <div className="flex items-center gap-3">
+              <Input
+                id="image"
+                type="file"
+                accept="image/*"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                className="hidden"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-2"
+              >
+                <Upload className="w-4 h-4" />
+                Choose Image
+              </Button>
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" className="h-12 w-12 object-cover rounded" />
+              )}
+            </div>
+          </div>
+          <Button onClick={handleAddProduct} className="w-full" disabled={uploading}>
+            {uploading ? "Adding..." : "Add Product"}
           </Button>
         </CardContent>
       </Card>
@@ -166,13 +238,22 @@ export function ShopAdmin() {
                   key={product.id}
                   className="flex justify-between items-center border rounded-lg p-3"
                 >
-                  <div>
-                    <span className="font-medium">{product.name}</span>
-                    {product.categories?.name && (
-                      <span className="text-xs ml-2 text-muted-foreground">
-                        ({product.categories.name})
-                      </span>
+                  <div className="flex items-center gap-3">
+                    {product.image_url ? (
+                      <img src={product.image_url} alt={product.name} className="h-10 w-10 object-cover rounded" />
+                    ) : (
+                      <div className="h-10 w-10 bg-muted rounded flex items-center justify-center">
+                        <Image className="w-5 h-5 text-muted-foreground" />
+                      </div>
                     )}
+                    <div>
+                      <span className="font-medium">{product.name}</span>
+                      {product.categories?.name && (
+                        <span className="text-xs ml-2 text-muted-foreground">
+                          ({product.categories.name})
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-muted-foreground">
