@@ -1,13 +1,13 @@
 import { useState, useEffect, useRef } from "react";
-import { Plus, Package, Trash2, Upload, Image } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Package, Trash2, Upload, Image, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
-
-const ADMIN_NAME = "Mucunguzi Samuel";
+import { User } from "@supabase/supabase-js";
 
 interface Category {
   id: string;
@@ -24,6 +24,9 @@ interface Product {
 }
 
 export function ShopAdmin() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState<User | null>(null);
+  const [authLoading, setAuthLoading] = useState(true);
   const [productName, setProductName] = useState("");
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState("");
@@ -34,6 +37,51 @@ export function ShopAdmin() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setUser(session?.user ?? null);
+        if (!session) {
+          navigate("/shop/login");
+        } else {
+          // Check admin role
+          setTimeout(() => {
+            checkAdminRole(session.user.id);
+          }, 0);
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!session) {
+        navigate("/shop/login");
+      } else {
+        setUser(session.user);
+        checkAdminRole(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
+
+  async function checkAdminRole(userId: string) {
+    const { data, error } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .single();
+
+    if (error || !data) {
+      await supabase.auth.signOut();
+      navigate("/shop/login");
+      return;
+    }
+    
+    setAuthLoading(false);
+    loadData();
+  }
 
   async function loadData() {
     setLoading(true);
@@ -58,10 +106,6 @@ export function ShopAdmin() {
     
     setLoading(false);
   }
-
-  useEffect(() => {
-    loadData();
-  }, []);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -137,13 +181,32 @@ export function ShopAdmin() {
     loadData();
   }
 
+  async function handleLogout() {
+    await supabase.auth.signOut();
+    navigate("/shop/login");
+  }
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-muted-foreground">Checking authentication...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-        <p className="text-muted-foreground">
-          Logged in as <strong>{ADMIN_NAME}</strong>
-        </p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+          <p className="text-muted-foreground">
+            Logged in as <strong>{user?.email}</strong>
+          </p>
+        </div>
+        <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
       </div>
 
       {/* Add Product Form */}

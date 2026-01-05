@@ -4,6 +4,7 @@ import { ShopNavbar } from "@/components/shop/ShopNavbar";
 import { ShopHome } from "./ShopHome";
 import { ShopProducts } from "./ShopProducts";
 import { ShopAdmin } from "./ShopAdmin";
+import { ShopAuth } from "./ShopAuth";
 import { Product } from "@/components/shop/ProductCard";
 
 export function ShopLayout() {
@@ -23,6 +24,7 @@ export function ShopLayout() {
         <Route index element={<ShopHome />} />
         <Route path="products" element={<ShopProducts cart={cart} setCart={setCart} />} />
         <Route path="admin" element={<ShopAdmin />} />
+        <Route path="login" element={<ShopAuth />} />
       </Routes>
     </div>
   );
