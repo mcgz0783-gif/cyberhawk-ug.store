@@ -35,6 +35,101 @@ export type Database = {
         }
         Relationships: []
       }
+      ebook_purchases: {
+        Row: {
+          access_token: string
+          amount: number
+          created_at: string
+          currency: string | null
+          ebook_id: string
+          email: string
+          id: string
+          payment_status: string
+          transaction_id: string
+        }
+        Insert: {
+          access_token?: string
+          amount: number
+          created_at?: string
+          currency?: string | null
+          ebook_id: string
+          email: string
+          id?: string
+          payment_status?: string
+          transaction_id: string
+        }
+        Update: {
+          access_token?: string
+          amount?: number
+          created_at?: string
+          currency?: string | null
+          ebook_id?: string
+          email?: string
+          id?: string
+          payment_status?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ebook_purchases_ebook_id_fkey"
+            columns: ["ebook_id"]
+            isOneToOne: false
+            referencedRelation: "ebooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ebooks: {
+        Row: {
+          author: string | null
+          cover_image_url: string | null
+          created_at: string
+          description: string | null
+          featured: boolean | null
+          id: string
+          pages: number | null
+          pdf_url: string
+          price: number
+          published: boolean | null
+          short_description: string | null
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          pages?: number | null
+          pdf_url: string
+          price?: number
+          published?: boolean | null
+          short_description?: string | null
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string
+          description?: string | null
+          featured?: boolean | null
+          id?: string
+          pages?: number | null
+          pdf_url?: string
+          price?: number
+          published?: boolean | null
+          short_description?: string | null
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       products: {
         Row: {
           category_id: string | null

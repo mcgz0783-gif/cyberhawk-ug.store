@@ -12,6 +12,7 @@ import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import { ShopLayout } from "./pages/shop/ShopLayout";
+import { EbooksLayout } from "./pages/ebooks/EbooksLayout";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/shop/*" element={<ShopLayout />} />
+          <Route path="/ebooks/*" element={<EbooksLayout />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </TooltipProvider>
