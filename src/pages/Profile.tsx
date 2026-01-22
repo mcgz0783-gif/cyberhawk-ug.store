@@ -110,17 +110,17 @@ const Profile = () => {
 
     try {
       const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}-${Date.now()}.${fileExt}`;
-      const filePath = `avatars/${fileName}`;
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${user.id}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("product-images")
+        .from("avatars")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       const { data: { publicUrl } } = supabase.storage
-        .from("product-images")
+        .from("avatars")
         .getPublicUrl(filePath);
 
       setAvatarUrl(publicUrl);

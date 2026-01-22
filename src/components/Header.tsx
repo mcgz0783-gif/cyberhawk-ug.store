@@ -1,13 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun } from "lucide-react";
+import { Menu, X, Moon, Sun, User } from "lucide-react";
 import { useTheme } from "next-themes";
+import { supabase } from "@/integrations/supabase/client";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import cyberHawkLogo from "@/assets/cyberhawk-logo.png";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [user, setUser] = useState<{ email: string } | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [displayName, setDisplayName] = useState<string | null>(null);
   const location = useLocation();
   const { theme, setTheme } = useTheme();
+
+  useEffect(() => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session?.user) {
+          setUser({ email: session.user.email || "" });
+          loadProfile(session.user.id);
+        } else {
+          setUser(null);
+          setAvatarUrl(null);
+          setDisplayName(null);
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser({ email: session.user.email || "" });
+        loadProfile(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadProfile = async (userId: string) => {
+    const { data } = await supabase
+      .from("profiles")
+      .select("avatar_url, display_name")
+      .eq("user_id", userId)
+      .single();
+
+    if (data) {
+      setAvatarUrl(data.avatar_url);
+      setDisplayName(data.display_name);
+    }
+  };
+
+  const getInitials = () => {
+    if (displayName) {
+      return displayName
+        .split(" ")
+        .map((n) => n[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    }
+    return user?.email?.charAt(0).toUpperCase() || "U";
+  };
 
   const navLinks = [
     { href: "/", label: "Home" },
@@ -67,6 +121,30 @@ const Header = () => {
               <Moon className="absolute top-2.5 left-2.5 w-5 h-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-foreground" />
             </button>
 
+            {/* Profile Link for logged-in users */}
+            {user ? (
+              <Link
+                to="/profile"
+                className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary transition-colors"
+                aria-label="View profile"
+              >
+                <Avatar className="h-9 w-9 border-2 border-primary/20">
+                  <AvatarImage src={avatarUrl || undefined} alt="Profile" />
+                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-display">
+                    {getInitials()}
+                  </AvatarFallback>
+                </Avatar>
+              </Link>
+            ) : (
+              <Link
+                to="/shop/auth"
+                className="hidden md:flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary hover:bg-secondary/80 transition-colors text-foreground font-medium"
+              >
+                <User className="w-4 h-4" />
+                Sign In
+              </Link>
+            )}
+
             {/* CTA Button */}
             <Link
               to="/contact"
@@ -104,6 +182,30 @@ const Header = () => {
                   {link.label}
                 </Link>
               ))}
+              {user ? (
+                <Link
+                  to="/profile"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-3 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <Avatar className="h-8 w-8 border-2 border-primary/20">
+                    <AvatarImage src={avatarUrl || undefined} alt="Profile" />
+                    <AvatarFallback className="bg-primary text-primary-foreground text-xs font-display">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="font-medium">My Profile</span>
+                </Link>
+              ) : (
+                <Link
+                  to="/shop/auth"
+                  onClick={() => setIsMenuOpen(false)}
+                  className="flex items-center gap-2 py-2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <User className="w-5 h-5" />
+                  <span className="font-medium">Sign In</span>
+                </Link>
+              )}
               <Link
                 to="/contact"
                 onClick={() => setIsMenuOpen(false)}
