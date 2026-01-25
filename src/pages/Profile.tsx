@@ -6,8 +6,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { User, Mail, Camera, LogOut, Loader2, ArrowLeft } from "lucide-react";
+import { User, Mail, Camera, LogOut, Loader2, ArrowLeft, Shield, ShieldCheck, UserCircle } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 
@@ -19,6 +20,8 @@ interface Profile {
   avatar_url: string | null;
 }
 
+type AppRole = "admin" | "moderator" | "user";
+
 const Profile = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -28,6 +31,7 @@ const Profile = () => {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [displayName, setDisplayName] = useState("");
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [roles, setRoles] = useState<AppRole[]>([]);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
@@ -75,10 +79,42 @@ const Profile = () => {
         setDisplayName(data.display_name || "");
         setAvatarUrl(data.avatar_url);
       }
+
+      // Load user roles
+      const { data: rolesData } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId);
+
+      if (rolesData) {
+        setRoles(rolesData.map((r) => r.role as AppRole));
+      }
     } catch (error) {
       console.error("Error loading profile:", error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getRoleBadgeVariant = (role: AppRole) => {
+    switch (role) {
+      case "admin":
+        return "destructive";
+      case "moderator":
+        return "secondary";
+      default:
+        return "outline";
+    }
+  };
+
+  const getRoleIcon = (role: AppRole) => {
+    switch (role) {
+      case "admin":
+        return <ShieldCheck className="h-3 w-3" />;
+      case "moderator":
+        return <Shield className="h-3 w-3" />;
+      default:
+        return <UserCircle className="h-3 w-3" />;
     }
   };
 
@@ -268,6 +304,20 @@ const Profile = () => {
               <CardDescription>
                 Manage your account information
               </CardDescription>
+              {roles.length > 0 && (
+                <div className="flex flex-wrap justify-center gap-2 pt-3">
+                  {roles.map((role) => (
+                    <Badge
+                      key={role}
+                      variant={getRoleBadgeVariant(role)}
+                      className="flex items-center gap-1 capitalize"
+                    >
+                      {getRoleIcon(role)}
+                      {role}
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </CardHeader>
 
             <CardContent className="space-y-6 pt-6">
