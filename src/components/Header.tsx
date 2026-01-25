@@ -1,9 +1,17 @@
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
-import { Menu, X, Moon, Sun, User } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Menu, X, Moon, Sun, User, LogOut, Settings, ShieldCheck } from "lucide-react";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import cyberHawkLogo from "@/assets/cyberhawk-logo.png";
 
 const Header = () => {
@@ -11,6 +19,8 @@ const Header = () => {
   const [user, setUser] = useState<{ email: string } | null>(null);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
   const location = useLocation();
   const { theme, setTheme } = useTheme();
 
@@ -49,6 +59,25 @@ const Header = () => {
       setAvatarUrl(data.avatar_url);
       setDisplayName(data.display_name);
     }
+
+    // Check if user is admin
+    const { data: roleData } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", userId)
+      .eq("role", "admin")
+      .maybeSingle();
+
+    setIsAdmin(!!roleData);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setAvatarUrl(null);
+    setDisplayName(null);
+    setIsAdmin(false);
+    navigate("/");
   };
 
   const getInitials = () => {
@@ -121,20 +150,54 @@ const Header = () => {
               <Moon className="absolute top-2.5 left-2.5 w-5 h-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 text-foreground" />
             </button>
 
-            {/* Profile Link for logged-in users */}
+            {/* Profile Dropdown for logged-in users */}
             {user ? (
-              <Link
-                to="/profile"
-                className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary transition-colors"
-                aria-label="View profile"
-              >
-                <Avatar className="h-9 w-9 border-2 border-primary/20">
-                  <AvatarImage src={avatarUrl || undefined} alt="Profile" />
-                  <AvatarFallback className="bg-primary text-primary-foreground text-sm font-display">
-                    {getInitials()}
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button
+                    className="flex items-center gap-2 p-1 rounded-full hover:bg-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+                    aria-label="Open profile menu"
+                  >
+                    <Avatar className="h-9 w-9 border-2 border-primary/20">
+                      <AvatarImage src={avatarUrl || undefined} alt="Profile" />
+                      <AvatarFallback className="bg-primary text-primary-foreground text-sm font-display">
+                        {getInitials()}
+                      </AvatarFallback>
+                    </Avatar>
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 bg-popover border border-border shadow-lg">
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{displayName || "User"}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/profile" className="flex items-center gap-2 cursor-pointer">
+                      <User className="h-4 w-4" />
+                      <span>My Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  {isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/shop/admin" className="flex items-center gap-2 cursor-pointer">
+                        <ShieldCheck className="h-4 w-4" />
+                        <span>Admin Panel</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="flex items-center gap-2 cursor-pointer text-destructive focus:text-destructive"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Sign Out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             ) : (
               <Link
                 to="/shop/auth"
