@@ -180,6 +180,12 @@ const Header = () => {
                       <span>My Profile</span>
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/settings" className="flex items-center gap-2 cursor-pointer">
+                      <Settings className="h-4 w-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
                   {isAdmin && (
                     <DropdownMenuItem asChild>
                       <Link to="/shop/admin" className="flex items-center gap-2 cursor-pointer">

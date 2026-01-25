@@ -12,6 +12,7 @@ import Blog from "./pages/Blog";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import { ShopLayout } from "./pages/shop/ShopLayout";
 import { EbooksLayout } from "./pages/ebooks/EbooksLayout";
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="/shop/*" element={<ShopLayout />} />
           <Route path="/ebooks/*" element={<EbooksLayout />} />
           <Route path="*" element={<NotFound />} />
