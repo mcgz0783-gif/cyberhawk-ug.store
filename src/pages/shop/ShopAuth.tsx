@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Lock, Mail } from "lucide-react";
+import { Lock, Mail, ArrowLeft } from "lucide-react";
 import { z } from "zod";
 
 const emailSchema = z.string().email("Invalid email address");
@@ -19,12 +19,12 @@ export function ShopAuth() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
 
   useEffect(() => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         if (session) {
-          // Check admin role after login
           setTimeout(() => {
             checkAdminAndRedirect(session.user.id);
           }, 0);
@@ -32,7 +32,6 @@ export function ShopAuth() {
       }
     );
 
-    // Check if already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         checkAdminAndRedirect(session.user.id);
@@ -121,6 +120,77 @@ export function ShopAuth() {
     setLoading(false);
   }
 
+  async function handleForgotPassword() {
+    setError(null);
+    
+    const emailResult = emailSchema.safeParse(email);
+    if (!emailResult.success) {
+      setError(emailResult.error.errors[0].message);
+      return;
+    }
+
+    setLoading(true);
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/settings`,
+    });
+
+    if (error) {
+      setError(error.message);
+    } else {
+      setMessage("Password reset email sent! Check your inbox for the reset link.");
+    }
+    setLoading(false);
+  }
+
+  if (showForgotPassword) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background px-4">
+        <Card className="w-full max-w-md">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">Reset Password</CardTitle>
+            <CardDescription>
+              Enter your email to receive a password reset link
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="reset-email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="reset-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+            {error && <p className="text-sm text-destructive">{error}</p>}
+            {message && <p className="text-sm text-primary">{message}</p>}
+            <Button onClick={handleForgotPassword} className="w-full" disabled={loading}>
+              {loading ? "Sending..." : "Send Reset Link"}
+            </Button>
+            <Button
+              variant="ghost"
+              className="w-full gap-2"
+              onClick={() => {
+                setShowForgotPassword(false);
+                setError(null);
+                setMessage(null);
+              }}
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back to Login
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
       <Card className="w-full max-w-md">
@@ -153,7 +223,16 @@ export function ShopAuth() {
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="login-password">Password</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="login-password">Password</Label>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    Forgot password?
+                  </button>
+                </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
@@ -167,7 +246,7 @@ export function ShopAuth() {
                 </div>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
-              {message && <p className="text-sm text-green-600">{message}</p>}
+              {message && <p className="text-sm text-primary">{message}</p>}
               <Button onClick={handleLogin} className="w-full" disabled={loading}>
                 {loading ? "Signing in..." : "Sign In"}
               </Button>
@@ -203,7 +282,7 @@ export function ShopAuth() {
                 </div>
               </div>
               {error && <p className="text-sm text-destructive">{error}</p>}
-              {message && <p className="text-sm text-green-600">{message}</p>}
+              {message && <p className="text-sm text-primary">{message}</p>}
               <Button onClick={handleSignUp} className="w-full" disabled={loading}>
                 {loading ? "Creating account..." : "Create Account"}
               </Button>
