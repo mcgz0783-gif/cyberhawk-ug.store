@@ -1,16 +1,33 @@
 import { Link } from "react-router-dom";
-import { Shield, Eye, Zap, ArrowRight, Phone, MessageCircle } from "lucide-react";
+import { Shield, Eye, Zap, ArrowRight, Phone, MessageCircle, BookOpen } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
 import cyberHawkLogo from "@/assets/cyberhawk-logo.png";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
+import { EbookCard } from "@/components/ebooks/EbookCard";
 
 const Index = () => {
   const handleWhatsApp = () => {
     const message = encodeURIComponent("Hello CyberHawk! I'm interested in your cybersecurity services.");
     window.open(`https://wa.me/250788213106?text=${message}`, "_blank");
   };
+
+  const { data: featuredEbooks } = useQuery({
+    queryKey: ["featured-ebooks-home"],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("ebooks")
+        .select("*")
+        .eq("published", true)
+        .eq("featured", true)
+        .limit(3);
+      if (error) throw error;
+      return data;
+    },
+  });
 
   return (
     <div className="min-h-screen bg-background">
@@ -153,6 +170,84 @@ const Index = () => {
                 className="w-48 h-48 object-contain opacity-80"
               />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Featured Ebooks Section */}
+      {featuredEbooks && featuredEbooks.length > 0 && (
+        <section className="container mx-auto px-6 py-16 md:py-24">
+          <div className="text-center mb-12">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Cybersecurity Resources
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Expand your security knowledge with our expert-written ebooks and guides
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {featuredEbooks.map((ebook) => (
+              <EbookCard key={ebook.id} ebook={ebook} featured />
+            ))}
+          </div>
+
+          <div className="text-center mt-10">
+            <Link
+              to="/ebooks"
+              className="inline-flex items-center gap-2 bg-gradient-brand text-primary-foreground px-8 py-4 rounded-xl font-display font-semibold shadow-brand hover:shadow-elevated transition-all duration-300 hover:-translate-y-0.5"
+            >
+              <BookOpen className="w-5 h-5" />
+              Browse All Ebooks
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+          </div>
+        </section>
+      )}
+
+      {/* Quick Links Section */}
+      <section className="bg-muted/50 py-12">
+        <div className="container mx-auto px-6">
+          <div className="grid md:grid-cols-3 gap-6">
+            <Link
+              to="/ebooks"
+              className="group flex items-center gap-4 bg-card p-6 rounded-xl border border-border hover:shadow-elevated hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <BookOpen className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-foreground">Ebooks Store</h3>
+                <p className="text-sm text-muted-foreground">Security guides & resources</p>
+              </div>
+              <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+            </Link>
+            <Link
+              to="/shop"
+              className="group flex items-center gap-4 bg-card p-6 rounded-xl border border-border hover:shadow-elevated hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <Shield className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-foreground">Security Shop</h3>
+                <p className="text-sm text-muted-foreground">Tools & equipment</p>
+              </div>
+              <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+            </Link>
+            <Link
+              to="/services"
+              className="group flex items-center gap-4 bg-card p-6 rounded-xl border border-border hover:shadow-elevated hover:-translate-y-1 transition-all duration-300"
+            >
+              <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                <Eye className="w-6 h-6" />
+              </div>
+              <div>
+                <h3 className="font-display font-semibold text-foreground">Our Services</h3>
+                <p className="text-sm text-muted-foreground">Professional protection</p>
+              </div>
+              <ArrowRight className="w-5 h-5 ml-auto text-muted-foreground group-hover:text-primary transition-colors" />
+            </Link>
           </div>
         </div>
       </section>
