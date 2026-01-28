@@ -20,11 +20,11 @@ const EbookCheckout = () => {
   const { data: ebook, isLoading } = useQuery({
     queryKey: ["ebook", slug],
     queryFn: async () => {
+      // Use the secure public view that excludes pdf_url
       const { data, error } = await supabase
-        .from("ebooks")
+        .from("ebooks_public")
         .select("*")
         .eq("slug", slug)
-        .eq("published", true)
         .single();
 
       if (error) throw error;

@@ -16,10 +16,10 @@ const EbooksHome = () => {
   const { data: ebooks, isLoading } = useQuery({
     queryKey: ["ebooks"],
     queryFn: async () => {
+      // Use the secure public view that excludes pdf_url
       const { data, error } = await supabase
-        .from("ebooks")
+        .from("ebooks_public")
         .select("*")
-        .eq("published", true)
         .order("created_at", { ascending: false });
 
       if (error) throw error;

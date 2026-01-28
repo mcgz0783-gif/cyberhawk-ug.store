@@ -18,10 +18,10 @@ const Index = () => {
   const { data: featuredEbooks } = useQuery({
     queryKey: ["featured-ebooks-home"],
     queryFn: async () => {
+      // Use the secure public view that excludes pdf_url
       const { data, error } = await supabase
-        .from("ebooks")
+        .from("ebooks_public")
         .select("*")
-        .eq("published", true)
         .eq("featured", true)
         .limit(3);
       if (error) throw error;
