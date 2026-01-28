@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Accordion,
   AccordionContent,
@@ -40,40 +41,44 @@ const faqs = [
   },
 ];
 
-const FAQ = () => {
-  return (
-    <section className="py-16 md:py-24 bg-card">
-      <div className="container mx-auto px-6">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Frequently Asked Questions
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Get answers to common cybersecurity questions. Can't find what you're looking for? Contact us directly.
-          </p>
-        </div>
+const FAQ = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
+  (props, ref) => {
+    return (
+      <section ref={ref} className="py-16 md:py-24 bg-card" {...props}>
+        <div className="container mx-auto px-6">
+          <div className="text-center mb-12 md:mb-16">
+            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
+              Frequently Asked Questions
+            </h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto">
+              Get answers to common cybersecurity questions. Can't find what you're looking for? Contact us directly.
+            </p>
+          </div>
 
-        <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="space-y-4">
-            {faqs.map((faq, index) => (
-              <AccordionItem
-                key={index}
-                value={`item-${index}`}
-                className="bg-background rounded-xl px-6 border border-border shadow-soft data-[state=open]:shadow-elevated transition-shadow"
-              >
-                <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-primary py-5">
-                  {faq.question}
-                </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
+          <div className="max-w-3xl mx-auto">
+            <Accordion type="single" collapsible className="space-y-4">
+              {faqs.map((faq, index) => (
+                <AccordionItem
+                  key={index}
+                  value={`item-${index}`}
+                  className="bg-background rounded-xl px-6 border border-border shadow-soft data-[state=open]:shadow-elevated transition-shadow"
+                >
+                  <AccordionTrigger className="text-left font-display font-semibold text-foreground hover:text-primary py-5">
+                    {faq.question}
+                  </AccordionTrigger>
+                  <AccordionContent className="text-muted-foreground pb-5 leading-relaxed">
+                    {faq.answer}
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </div>
         </div>
-      </div>
-    </section>
-  );
-};
+      </section>
+    );
+  }
+);
+
+FAQ.displayName = "FAQ";
 
 export default FAQ;

@@ -1,12 +1,14 @@
+import React from "react";
 import { Link } from "react-router-dom";
-import { Phone, MessageCircle, Mail, MapPin } from "lucide-react";
+import { Phone, MessageCircle, Mail } from "lucide-react";
 import cyberHawkLogo from "@/assets/cyberhawk-logo.png";
 
-const Footer = () => {
-  const currentYear = new Date().getFullYear();
+const Footer = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
+  (props, ref) => {
+    const currentYear = new Date().getFullYear();
 
-  return (
-    <footer className="bg-hawk-dark text-white">
+    return (
+      <footer ref={ref} className="bg-hawk-dark text-white" {...props}>
       <div className="container mx-auto px-6 py-12 md:py-16">
         <div className="grid md:grid-cols-4 gap-8 md:gap-12">
           {/* Brand */}
@@ -112,8 +114,11 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
-};
+      </footer>
+    );
+  }
+);
+
+Footer.displayName = "Footer";
 
 export default Footer;

@@ -77,6 +77,13 @@ export type Database = {
             referencedRelation: "ebooks"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "ebook_purchases_ebook_id_fkey"
+            columns: ["ebook_id"]
+            isOneToOne: false
+            referencedRelation: "ebooks_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       ebooks: {
@@ -230,7 +237,54 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      ebooks_public: {
+        Row: {
+          author: string | null
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          featured: boolean | null
+          id: string | null
+          pages: number | null
+          price: number | null
+          published: boolean | null
+          short_description: string | null
+          slug: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string | null
+          pages?: number | null
+          price?: number | null
+          published?: boolean | null
+          short_description?: string | null
+          slug?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          author?: string | null
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          featured?: boolean | null
+          id?: string | null
+          pages?: number | null
+          price?: number | null
+          published?: boolean | null
+          short_description?: string | null
+          slug?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {
