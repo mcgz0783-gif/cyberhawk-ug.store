@@ -7,6 +7,7 @@ import EbookDetail from "./EbookDetail";
 import EbookCheckout from "./EbookCheckout";
 import EbookSuccess from "./EbookSuccess";
 import EbooksAdmin from "./EbooksAdmin";
+import EbooksAuth from "./EbooksAuth";
 
 export const EbooksLayout = () => {
   return (
@@ -19,6 +20,7 @@ export const EbooksLayout = () => {
           <Route path=":slug/checkout" element={<EbookCheckout />} />
           <Route path="success/:accessToken" element={<EbookSuccess />} />
           <Route path="admin" element={<EbooksAdmin />} />
+          <Route path="auth" element={<EbooksAuth />} />
         </Routes>
       </main>
       <Footer />
