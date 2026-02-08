@@ -13,11 +13,14 @@ serve(async (req) => {
   }
 
   try {
-    const { ebook_id, email, name, amount, redirect_url } = await req.json();
+    const { ebook_id, email, name, amount } = await req.json();
 
     if (!ebook_id || !email || !amount) {
       throw new Error("Missing required fields: ebook_id, email, amount");
     }
+
+    // Hardcode redirect URL to prevent open redirect attacks
+    const appUrl = Deno.env.get("PUBLIC_APP_URL") || "https://cyberhawk.lovable.app";
 
     const FLUTTERWAVE_SECRET_KEY = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
     if (!FLUTTERWAVE_SECRET_KEY) {
@@ -60,7 +63,7 @@ serve(async (req) => {
         tx_ref,
         amount,
         currency: "NGN",
-        redirect_url: `${redirect_url}/${purchase.access_token}`,
+        redirect_url: `${appUrl}/ebooks/success/${purchase.access_token}`,
         customer: {
           email,
           name: name || email.split("@")[0],

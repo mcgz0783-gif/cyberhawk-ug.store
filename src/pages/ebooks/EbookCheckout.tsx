@@ -62,7 +62,6 @@ const EbookCheckout = () => {
             email,
             name,
             amount: Number(ebook.price),
-            redirect_url: `${window.location.origin}/ebooks/success`,
           }),
         }
       );
