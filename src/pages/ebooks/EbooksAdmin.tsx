@@ -330,7 +330,7 @@ const EbooksAdmin = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="price">Price (NGN) *</Label>
+                  <Label htmlFor="price">Price (UGX) *</Label>
                   <Input
                     id="price"
                     type="number"
@@ -501,7 +501,7 @@ const EbooksAdmin = () => {
                     <TableCell>
                       {new Intl.NumberFormat("en-NG", {
                         style: "currency",
-                        currency: "NGN",
+                        currency: "UGX",
                       }).format(Number(ebook.price))}
                     </TableCell>
                     <TableCell>
