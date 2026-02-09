@@ -19,22 +19,20 @@ const EbookSuccess = () => {
   const [searchParams] = useSearchParams();
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [isLoadingPdf, setIsLoadingPdf] = useState(false);
-  const txRef = searchParams.get("tx_ref");
-  const transactionId = searchParams.get("transaction_id");
-  const status = searchParams.get("status");
+  const sessionId = searchParams.get("session_id");
 
   // Verify payment and get purchase
   const { data: purchase, isLoading, error } = useQuery({
-    queryKey: ["purchase", accessToken, txRef],
+    queryKey: ["purchase", accessToken, sessionId],
     queryFn: async () => {
-      // First verify with edge function if we have transaction details
-      if (txRef && transactionId && status === "successful") {
+      // Verify with Stripe if we have a session ID
+      if (sessionId) {
         await fetch(
-          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/flutterwave-verify`,
+          `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-ebook-verify`,
           {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ transaction_id: transactionId, tx_ref: txRef }),
+            body: JSON.stringify({ session_id: sessionId, access_token: accessToken }),
           }
         );
       }
@@ -132,7 +130,6 @@ const EbookSuccess = () => {
           )}
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Ebook Info */}
           {ebook && (
             <div className="flex gap-4 p-4 rounded-lg bg-muted">
               <div className="w-16 h-22 rounded-md overflow-hidden bg-background flex-shrink-0">
@@ -159,7 +156,6 @@ const EbookSuccess = () => {
             </div>
           )}
 
-          {/* Download Options */}
           {!isPending && (
             <div className="space-y-3">
               {isLoadingPdf ? (

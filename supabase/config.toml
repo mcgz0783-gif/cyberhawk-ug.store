@@ -2,3 +2,12 @@ project_id = "jtympnhmthldyiwmhszx"
 
 [functions.assign-admin-role]
 verify_jwt = false
+
+[functions.stripe-ebook-checkout]
+verify_jwt = false
+
+[functions.stripe-ebook-verify]
+verify_jwt = false
+
+[functions.ebook-download]
+verify_jwt = false

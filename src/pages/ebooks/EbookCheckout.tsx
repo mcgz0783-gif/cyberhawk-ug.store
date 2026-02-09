@@ -20,7 +20,6 @@ const EbookCheckout = () => {
   const { data: ebook, isLoading } = useQuery({
     queryKey: ["ebook", slug],
     queryFn: async () => {
-      // Use the secure public view that excludes pdf_url
       const { data, error } = await supabase
         .from("ebooks_public")
         .select("*")
@@ -51,7 +50,7 @@ const EbookCheckout = () => {
 
     try {
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/flutterwave-payment`,
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/stripe-ebook-checkout`,
         {
           method: "POST",
           headers: {
@@ -61,15 +60,14 @@ const EbookCheckout = () => {
             ebook_id: ebook.id,
             email,
             name,
-            amount: Number(ebook.price),
           }),
         }
       );
 
       const data = await response.json();
 
-      if (data.status === "success" && data.data?.link) {
-        window.location.href = data.data.link;
+      if (data.url) {
+        window.location.href = data.url;
       } else {
         throw new Error(data.message || "Failed to initialize payment");
       }
@@ -122,7 +120,6 @@ const EbookCheckout = () => {
       </Link>
 
       <div className="grid gap-8">
-        {/* Order Summary */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -160,7 +157,6 @@ const EbookCheckout = () => {
           </CardContent>
         </Card>
 
-        {/* Payment Form */}
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -217,7 +213,7 @@ const EbookCheckout = () => {
               </Button>
 
               <p className="text-xs text-center text-muted-foreground">
-                Secured by Flutterwave. Your payment information is encrypted.
+                Secured by Stripe. Your payment information is encrypted.
               </p>
             </form>
           </CardContent>
