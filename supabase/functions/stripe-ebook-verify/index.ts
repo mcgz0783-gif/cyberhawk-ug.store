@@ -1,4 +1,5 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
+import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
@@ -13,43 +14,32 @@ serve(async (req) => {
   }
 
   try {
-    const { transaction_id, tx_ref } = await req.json();
+    const { session_id, access_token } = await req.json();
 
-    if (!transaction_id || !tx_ref) {
-      throw new Error("Missing transaction_id or tx_ref");
+    if (!session_id || !access_token) {
+      throw new Error("Missing session_id or access_token");
     }
 
-    const FLUTTERWAVE_SECRET_KEY = Deno.env.get("FLUTTERWAVE_SECRET_KEY");
-    if (!FLUTTERWAVE_SECRET_KEY) {
-      throw new Error("Flutterwave secret key not configured");
-    }
+    const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
+      apiVersion: "2025-08-27.basil",
+    });
 
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Verify transaction with Flutterwave
-    const response = await fetch(
-      `https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`,
-      {
-        method: "GET",
-        headers: {
-          Authorization: `Bearer ${FLUTTERWAVE_SECRET_KEY}`,
-        },
-      }
-    );
+    // Verify the Stripe session
+    const session = await stripe.checkout.sessions.retrieve(session_id);
 
-    const result = await response.json();
-
-    if (result.status === "success" && result.data.status === "successful") {
-      // Update purchase status
+    if (session.payment_status === "paid") {
+      // Update purchase status to completed
       const { error: updateError } = await supabase
         .from("ebook_purchases")
         .update({
           payment_status: "completed",
-          transaction_id: transaction_id,
+          transaction_id: session_id,
         })
-        .eq("transaction_id", tx_ref);
+        .eq("access_token", access_token);
 
       if (updateError) {
         console.error("Update error:", updateError);
@@ -58,16 +48,12 @@ serve(async (req) => {
 
       return new Response(
         JSON.stringify({ status: "success", message: "Payment verified" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     } else {
       return new Response(
-        JSON.stringify({ status: "failed", message: "Payment verification failed" }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        }
+        JSON.stringify({ status: "pending", message: "Payment not yet completed" }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
   } catch (error: unknown) {
