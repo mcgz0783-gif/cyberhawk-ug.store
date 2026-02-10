@@ -1,0 +1,1 @@
+ALTER TABLE public.ebook_purchases ALTER COLUMN currency SET DEFAULT 'UGX'::text;
