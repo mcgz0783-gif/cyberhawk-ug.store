@@ -104,9 +104,9 @@ const EbookCheckout = () => {
     );
   }
 
-  const formattedPrice = new Intl.NumberFormat("en-NG", {
+  const formattedPrice = new Intl.NumberFormat("en-UG", {
     style: "currency",
-    currency: "NGN",
+    currency: "UGX",
   }).format(Number(ebook.price));
 
   return (
