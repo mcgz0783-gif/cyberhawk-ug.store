@@ -55,7 +55,7 @@ serve(async (req) => {
         transaction_id: tx_ref,
         amount: Number(ebook.price),
         payment_status: "pending",
-        currency: "NGN",
+        currency: "UGX",
       })
       .select()
       .single();
@@ -71,7 +71,7 @@ serve(async (req) => {
       line_items: [
         {
           price_data: {
-            currency: "ngn",
+            currency: "ugx",
             product_data: {
               name: ebook.title,
               images: ebook.cover_image_url ? [ebook.cover_image_url] : [],
@@ -81,6 +81,7 @@ serve(async (req) => {
           quantity: 1,
         },
       ],
+      payment_method_types: ["card"],
       mode: "payment",
       success_url: `${appUrl}/ebooks/success/${purchase.access_token}?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${appUrl}/ebooks/${ebook.slug}`,
