@@ -4,6 +4,7 @@ import { Calendar, User, ArrowRight, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
+import InternalLinks from "@/components/InternalLinks";
 
 const blogPosts = [
   {
@@ -80,7 +81,26 @@ const categories = [
 const Blog = () => {
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Blog" description="Cybersecurity insights, tips, and best practices from CyberHawk UG experts. Stay ahead of cyber threats in Uganda and East Africa." canonical="/blog" />
+      <SEOHead
+        title="Blog"
+        description="Cybersecurity insights, tips, and best practices from CyberHawk UG experts. Stay ahead of cyber threats in Uganda and East Africa."
+        canonical="/blog"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Blog",
+          name: "CyberHawk UG Cybersecurity Blog",
+          url: "https://cyberhawk.lovable.app/blog",
+          publisher: { "@type": "Organization", name: "CyberHawk UG" },
+          blogPost: blogPosts.map((post) => ({
+            "@type": "BlogPosting",
+            headline: post.title,
+            description: post.excerpt,
+            author: { "@type": "Person", name: post.author },
+            datePublished: post.date,
+            articleSection: post.category,
+          })),
+        }}
+      />
       <Header />
       <PageBreadcrumb items={[{ label: "Blog" }]} />
 
@@ -201,6 +221,7 @@ const Blog = () => {
         </div>
       </section>
 
+      <InternalLinks excludePath="/blog" />
       <Footer />
     </div>
   );

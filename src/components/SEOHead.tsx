@@ -5,7 +5,7 @@ interface SEOHeadProps {
   description: string;
   canonical?: string;
   type?: string;
-  jsonLd?: Record<string, unknown>;
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
 const BASE_URL = "https://cyberhawk.lovable.app";
@@ -51,21 +51,22 @@ const SEOHead = ({ title, description, canonical, type = "website", jsonLd }: SE
       link.remove();
     }
 
-    // JSON-LD
-    const existingScript = document.querySelector('script[data-seo-jsonld]');
-    if (existingScript) existingScript.remove();
+    // JSON-LD – supports single or multiple schemas
+    document.querySelectorAll('script[data-seo-jsonld]').forEach((s) => s.remove());
 
     if (jsonLd) {
-      const script = document.createElement("script");
-      script.type = "application/ld+json";
-      script.setAttribute("data-seo-jsonld", "true");
-      script.textContent = JSON.stringify(jsonLd);
-      document.head.appendChild(script);
+      const schemas = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+      schemas.forEach((schema, i) => {
+        const script = document.createElement("script");
+        script.type = "application/ld+json";
+        script.setAttribute("data-seo-jsonld", `${i}`);
+        script.textContent = JSON.stringify(schema);
+        document.head.appendChild(script);
+      });
     }
 
     return () => {
-      const script = document.querySelector('script[data-seo-jsonld]');
-      if (script) script.remove();
+      document.querySelectorAll('script[data-seo-jsonld]').forEach((s) => s.remove());
     };
   }, [fullTitle, description, canonicalUrl, type, jsonLd]);
 

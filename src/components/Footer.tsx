@@ -10,7 +10,7 @@ const Footer = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
     return (
       <footer ref={ref} className="bg-hawk-dark text-white" {...props}>
       <div className="container mx-auto px-6 py-12 md:py-16">
-        <div className="grid md:grid-cols-4 gap-8 md:gap-12">
+        <div className="grid md:grid-cols-5 gap-8 md:gap-12">
           {/* Brand */}
           <div className="md:col-span-1">
             <Link to="/" className="flex items-center gap-3 mb-4">
@@ -59,11 +59,21 @@ const Footer = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
           {/* Services */}
           <div>
             <h4 className="font-display font-bold mb-4">Services</h4>
-            <ul className="space-y-2 text-white/60">
-              <li>Network Security</li>
-              <li>Penetration Testing</li>
-              <li>Security Audits</li>
-              <li>Incident Response</li>
+            <ul className="space-y-2">
+              <li><Link to="/services" className="text-white/60 hover:text-primary transition-colors">Network Security</Link></li>
+              <li><Link to="/services" className="text-white/60 hover:text-primary transition-colors">Penetration Testing</Link></li>
+              <li><Link to="/services" className="text-white/60 hover:text-primary transition-colors">Security Audits</Link></li>
+              <li><Link to="/services" className="text-white/60 hover:text-primary transition-colors">Incident Response</Link></li>
+            </ul>
+          </div>
+
+          {/* Resources */}
+          <div>
+            <h4 className="font-display font-bold mb-4">Resources</h4>
+            <ul className="space-y-2">
+              <li><Link to="/blog" className="text-white/60 hover:text-primary transition-colors">Blog</Link></li>
+              <li><Link to="/ebooks" className="text-white/60 hover:text-primary transition-colors">Ebooks</Link></li>
+              <li><Link to="/shop" className="text-white/60 hover:text-primary transition-colors">Shop</Link></li>
             </ul>
           </div>
 

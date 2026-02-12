@@ -35,16 +35,33 @@ const Index = () => {
         title="Home"
         description="CyberHawk UG provides enterprise-grade cybersecurity solutions in Uganda. Network security, penetration testing, incident response, and IT equipment."
         canonical="/"
-        jsonLd={{
-          "@context": "https://schema.org",
-          "@type": "Organization",
-          name: "CyberHawk UG",
-          url: "https://cyberhawk.lovable.app",
-          description: "Enterprise-grade cybersecurity solutions in Uganda",
-          telephone: "+250788213106",
-          email: "info@cyberhawk.ug",
-          sameAs: [],
-        }}
+        jsonLd={[
+          {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "CyberHawk UG",
+            url: "https://cyberhawk.lovable.app",
+            description: "Enterprise-grade cybersecurity solutions in Uganda",
+            telephone: "+250788213106",
+            email: "info@cyberhawk.ug",
+            address: {
+              "@type": "PostalAddress",
+              addressCountry: "UG",
+            },
+            sameAs: [],
+          },
+          {
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "CyberHawk UG",
+            url: "https://cyberhawk.lovable.app",
+            potentialAction: {
+              "@type": "SearchAction",
+              target: "https://cyberhawk.lovable.app/blog?q={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+          },
+        ]}
       />
       <Header />
       
