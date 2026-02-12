@@ -3,6 +3,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import Testimonials from "@/components/Testimonials";
 import cyberHawkLogo from "@/assets/cyberhawk-logo.png";
+import SEOHead from "@/components/SEOHead";
+import PageBreadcrumb from "@/components/PageBreadcrumb";
 
 const values = [
   {
@@ -37,7 +39,9 @@ const stats = [
 const About = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="About Us" description="Learn about CyberHawk UG – a team of cybersecurity experts protecting businesses in East Africa with certified, 24/7 security solutions." canonical="/about" />
       <Header />
+      <PageBreadcrumb items={[{ label: "About Us" }]} />
       
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 bg-gradient-subtle overflow-hidden">
