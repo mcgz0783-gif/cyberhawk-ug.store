@@ -2,6 +2,8 @@ import { Shield, Search, FileCheck, AlertTriangle, Lock, Server, Smartphone, Clo
 import { Link } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEOHead from "@/components/SEOHead";
+import PageBreadcrumb from "@/components/PageBreadcrumb";
 
 const services = [
   {
@@ -45,7 +47,9 @@ const services = [
 const Services = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Services" description="CyberHawk UG cybersecurity services: network security, penetration testing, security audits, incident response, data protection, and cloud security." canonical="/services" />
       <Header />
+      <PageBreadcrumb items={[{ label: "Services" }]} />
       
       {/* Hero Section */}
       <section className="relative py-16 md:py-24 bg-gradient-subtle overflow-hidden">

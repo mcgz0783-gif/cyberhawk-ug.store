@@ -2,6 +2,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Calendar, User, ArrowRight, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
+import SEOHead from "@/components/SEOHead";
+import PageBreadcrumb from "@/components/PageBreadcrumb";
 
 const blogPosts = [
   {
@@ -78,7 +80,9 @@ const categories = [
 const Blog = () => {
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead title="Blog" description="Cybersecurity insights, tips, and best practices from CyberHawk UG experts. Stay ahead of cyber threats in Uganda and East Africa." canonical="/blog" />
       <Header />
+      <PageBreadcrumb items={[{ label: "Blog" }]} />
 
       {/* Hero Section */}
       <section className="py-16 md:py-24 bg-gradient-to-br from-primary/5 via-background to-accent/5">

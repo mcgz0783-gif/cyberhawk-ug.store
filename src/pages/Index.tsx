@@ -8,7 +8,7 @@ import Footer from "@/components/Footer";
 import Testimonials from "@/components/Testimonials";
 import FAQ from "@/components/FAQ";
 import { EbookCard } from "@/components/ebooks/EbookCard";
-
+import SEOHead from "@/components/SEOHead";
 const Index = () => {
   const handleWhatsApp = () => {
     const message = encodeURIComponent("Hello CyberHawk! I'm interested in your cybersecurity services.");
@@ -31,6 +31,21 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      <SEOHead
+        title="Home"
+        description="CyberHawk UG provides enterprise-grade cybersecurity solutions in Uganda. Network security, penetration testing, incident response, and IT equipment."
+        canonical="/"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: "CyberHawk UG",
+          url: "https://cyberhawk.lovable.app",
+          description: "Enterprise-grade cybersecurity solutions in Uganda",
+          telephone: "+250788213106",
+          email: "info@cyberhawk.ug",
+          sameAs: [],
+        }}
+      />
       <Header />
       
       {/* Hero Section */}

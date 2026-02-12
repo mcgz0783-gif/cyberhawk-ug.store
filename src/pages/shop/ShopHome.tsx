@@ -2,6 +2,8 @@ import { Link } from "react-router-dom";
 import { Shield, ShoppingBag, Lock, Truck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import SEOHead from "@/components/SEOHead";
+import PageBreadcrumb from "@/components/PageBreadcrumb";
 
 export function ShopHome() {
   const features = [
@@ -24,6 +26,8 @@ export function ShopHome() {
 
   return (
     <div className="min-h-screen">
+      <SEOHead title="Shop" description="Browse premium IT security hardware and equipment from CyberHawk UG. Authentic products with nationwide delivery in Uganda." canonical="/shop" />
+      <PageBreadcrumb items={[{ label: "Shop" }]} />
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-20">
         <div className="container mx-auto px-4 text-center">
