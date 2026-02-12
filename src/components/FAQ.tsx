@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Accordion,
   AccordionContent,
@@ -43,6 +43,30 @@ const faqs = [
 
 const FAQ = React.forwardRef<HTMLElement, React.HTMLAttributes<HTMLElement>>(
   (props, ref) => {
+    // Inject FAQPage JSON-LD schema
+    useEffect(() => {
+      const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        mainEntity: faqs.map((faq) => ({
+          "@type": "Question",
+          name: faq.question,
+          acceptedAnswer: {
+            "@type": "Answer",
+            text: faq.answer,
+          },
+        })),
+      };
+      const script = document.createElement("script");
+      script.type = "application/ld+json";
+      script.setAttribute("data-faq-jsonld", "true");
+      script.textContent = JSON.stringify(jsonLd);
+      document.head.appendChild(script);
+      return () => {
+        document.querySelectorAll('script[data-faq-jsonld]').forEach((s) => s.remove());
+      };
+    }, []);
+
     return (
       <section ref={ref} className="py-16 md:py-24 bg-card" {...props}>
         <div className="container mx-auto px-6">

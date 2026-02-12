@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import SEOHead from "@/components/SEOHead";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
+import InternalLinks from "@/components/InternalLinks";
 
 const contactSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name too long"),
@@ -73,7 +74,28 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Contact" description="Contact CyberHawk UG for cybersecurity services in Uganda. Call 0788213106, WhatsApp, or email info@cyberhawk.ug for a free consultation." canonical="/contact" />
+      <SEOHead
+        title="Contact"
+        description="Contact CyberHawk UG for cybersecurity services in Uganda. Call 0788213106, WhatsApp, or email info@cyberhawk.ug for a free consultation."
+        canonical="/contact"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "ContactPage",
+          mainEntity: {
+            "@type": "Organization",
+            name: "CyberHawk UG",
+            telephone: "+250788213106",
+            email: "info@cyberhawk.ug",
+            contactPoint: {
+              "@type": "ContactPoint",
+              telephone: "+250788213106",
+              contactType: "customer service",
+              availableLanguage: "English",
+              areaServed: "UG",
+            },
+          },
+        }}
+      />
       <Header />
       <PageBreadcrumb items={[{ label: "Contact" }]} />
       
@@ -287,6 +309,7 @@ const Contact = () => {
         </div>
       </section>
 
+      <InternalLinks excludePath="/contact" />
       <Footer />
     </div>
   );

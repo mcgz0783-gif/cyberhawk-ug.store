@@ -5,6 +5,7 @@ import Testimonials from "@/components/Testimonials";
 import cyberHawkLogo from "@/assets/cyberhawk-logo.png";
 import SEOHead from "@/components/SEOHead";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
+import InternalLinks from "@/components/InternalLinks";
 
 const values = [
   {
@@ -39,7 +40,23 @@ const stats = [
 const About = () => {
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="About Us" description="Learn about CyberHawk UG – a team of cybersecurity experts protecting businesses in East Africa with certified, 24/7 security solutions." canonical="/about" />
+      <SEOHead
+        title="About Us"
+        description="Learn about CyberHawk UG – a team of cybersecurity experts protecting businesses in East Africa with certified, 24/7 security solutions."
+        canonical="/about"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "AboutPage",
+          mainEntity: {
+            "@type": "Organization",
+            name: "CyberHawk UG",
+            description: "A team of passionate cybersecurity experts dedicated to protecting businesses in East Africa and beyond.",
+            foundingLocation: { "@type": "Place", name: "Uganda" },
+            knowsAbout: ["Cybersecurity", "Network Security", "Penetration Testing", "Incident Response"],
+            numberOfEmployees: { "@type": "QuantitativeValue", value: "10+" },
+          },
+        }}
+      />
       <Header />
       <PageBreadcrumb items={[{ label: "About Us" }]} />
       
@@ -177,6 +194,7 @@ const About = () => {
       </section>
 
       <Testimonials />
+      <InternalLinks excludePath="/about" />
       <Footer />
     </div>
   );

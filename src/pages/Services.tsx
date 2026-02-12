@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import SEOHead from "@/components/SEOHead";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
+import InternalLinks from "@/components/InternalLinks";
 
 const services = [
   {
@@ -47,7 +48,31 @@ const services = [
 const Services = () => {
   return (
     <div className="min-h-screen bg-background">
-      <SEOHead title="Services" description="CyberHawk UG cybersecurity services: network security, penetration testing, security audits, incident response, data protection, and cloud security." canonical="/services" />
+      <SEOHead
+        title="Services"
+        description="CyberHawk UG cybersecurity services: network security, penetration testing, security audits, incident response, data protection, and cloud security."
+        canonical="/services"
+        jsonLd={{
+          "@context": "https://schema.org",
+          "@type": "Service",
+          serviceType: "Cybersecurity Services",
+          provider: {
+            "@type": "Organization",
+            name: "CyberHawk UG",
+            url: "https://cyberhawk.lovable.app",
+          },
+          areaServed: { "@type": "Country", name: "Uganda" },
+          hasOfferCatalog: {
+            "@type": "OfferCatalog",
+            name: "Cybersecurity Services",
+            itemListElement: services.map((s, i) => ({
+              "@type": "Offer",
+              itemOffered: { "@type": "Service", name: s.title, description: s.description },
+              position: i + 1,
+            })),
+          },
+        }}
+      />
       <Header />
       <PageBreadcrumb items={[{ label: "Services" }]} />
       
@@ -120,6 +145,7 @@ const Services = () => {
         </div>
       </section>
 
+      <InternalLinks excludePath="/services" />
       <Footer />
     </div>
   );
