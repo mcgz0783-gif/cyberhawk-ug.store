@@ -19,12 +19,18 @@ Deno.serve(async () => {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
   );
 
-  // Fetch published ebooks
-  const { data: ebooks } = await supabase
-    .from("ebooks")
-    .select("slug, updated_at")
-    .eq("published", true)
-    .order("created_at", { ascending: false });
+  // Fetch published ebooks and products in parallel
+  const [{ data: ebooks }, { data: products }] = await Promise.all([
+    supabase
+      .from("ebooks")
+      .select("slug, updated_at")
+      .eq("published", true)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("products")
+      .select("id, updated_at")
+      .order("created_at", { ascending: false }),
+  ]);
 
   const urlEntries = staticPages.map(
     (p) =>
@@ -44,6 +50,21 @@ Deno.serve(async () => {
         `  <url>
     <loc>${BASE_URL}/ebooks/${ebook.slug}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>`,
+      );
+    }
+  }
+
+  if (products) {
+    for (const product of products) {
+      const lastmod = product.updated_at
+        ? new Date(product.updated_at).toISOString().split("T")[0]
+        : "";
+      urlEntries.push(
+        `  <url>
+    <loc>${BASE_URL}/shop/products?product=${product.id}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
+    <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>`,
       );
