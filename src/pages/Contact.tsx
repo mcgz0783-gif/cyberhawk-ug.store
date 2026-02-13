@@ -78,6 +78,7 @@ const Contact = () => {
         title="Contact"
         description="Contact CyberHawk UG for cybersecurity services in Uganda. Call 0788213106, WhatsApp, or email info@cyberhawk.ug for a free consultation."
         canonical="/contact"
+        ogImage="/og-images/og-contact.png"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "ContactPage",

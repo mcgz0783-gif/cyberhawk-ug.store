@@ -26,7 +26,7 @@ export function ShopHome() {
 
   return (
     <div className="min-h-screen">
-      <SEOHead title="Shop" description="Browse premium IT security hardware and equipment from CyberHawk UG. Authentic products with nationwide delivery in Uganda." canonical="/shop" />
+      <SEOHead title="Shop" description="Browse premium IT security hardware and equipment from CyberHawk UG. Authentic products with nationwide delivery in Uganda." canonical="/shop" ogImage="/og-images/og-shop.png" />
       <PageBreadcrumb items={[{ label: "Shop" }]} />
       {/* Hero */}
       <section className="bg-gradient-to-br from-primary/10 to-secondary/10 py-20">

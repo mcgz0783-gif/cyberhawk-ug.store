@@ -35,6 +35,7 @@ const Index = () => {
         title="Home"
         description="CyberHawk UG provides enterprise-grade cybersecurity solutions in Uganda. Network security, penetration testing, incident response, and IT equipment."
         canonical="/"
+        ogImage="/og-images/og-home.png"
         jsonLd={[
           {
             "@context": "https://schema.org",

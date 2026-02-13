@@ -85,6 +85,7 @@ const Blog = () => {
         title="Blog"
         description="Cybersecurity insights, tips, and best practices from CyberHawk UG experts. Stay ahead of cyber threats in Uganda and East Africa."
         canonical="/blog"
+        ogImage="/og-images/og-blog.png"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Blog",
