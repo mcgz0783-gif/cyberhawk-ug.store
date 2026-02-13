@@ -52,6 +52,7 @@ const Services = () => {
         title="Services"
         description="CyberHawk UG cybersecurity services: network security, penetration testing, security audits, incident response, data protection, and cloud security."
         canonical="/services"
+        ogImage="/og-images/og-services.png"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "Service",

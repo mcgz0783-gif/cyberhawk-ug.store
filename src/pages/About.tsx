@@ -44,6 +44,7 @@ const About = () => {
         title="About Us"
         description="Learn about CyberHawk UG – a team of cybersecurity experts protecting businesses in East Africa with certified, 24/7 security solutions."
         canonical="/about"
+        ogImage="/og-images/og-about.png"
         jsonLd={{
           "@context": "https://schema.org",
           "@type": "AboutPage",
