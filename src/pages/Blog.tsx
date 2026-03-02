@@ -8,6 +8,16 @@ import InternalLinks from "@/components/InternalLinks";
 
 const blogPosts = [
   {
+    id: 7,
+    title: "Why CyberHawk UG Is Uganda's Trusted Cybersecurity Partner in 2025",
+    excerpt: "As cyber threats escalate across East Africa, CyberHawk UG leads the charge with tailored cybersecurity solutions for Ugandan businesses. Learn how our local expertise and global standards protect your digital assets.",
+    author: "CyberHawk UG Team",
+    date: "March 1, 2025",
+    category: "CyberHawk UG",
+    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80",
+    readTime: "7 min read",
+  },
+  {
     id: 1,
     title: "Top 10 Cybersecurity Threats to Watch in 2025",
     excerpt: "As technology evolves, so do cyber threats. Learn about the latest attack vectors and how to protect your organization from emerging risks.",
@@ -71,6 +81,7 @@ const blogPosts = [
 
 const categories = [
   "All",
+  "CyberHawk UG",
   "Threat Intelligence",
   "Security Operations",
   "Training",
