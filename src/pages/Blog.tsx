@@ -5,89 +5,7 @@ import { Link } from "react-router-dom";
 import SEOHead from "@/components/SEOHead";
 import PageBreadcrumb from "@/components/PageBreadcrumb";
 import InternalLinks from "@/components/InternalLinks";
-
-const blogPosts = [
-  {
-    id: 7,
-    title: "Why CyberHawk UG Is Uganda's Trusted Cybersecurity Partner in 2025",
-    excerpt: "As cyber threats escalate across East Africa, CyberHawk UG leads the charge with tailored cybersecurity solutions for Ugandan businesses. Learn how our local expertise and global standards protect your digital assets.",
-    author: "CyberHawk UG Team",
-    date: "March 1, 2025",
-    category: "CyberHawk UG",
-    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80",
-    readTime: "7 min read",
-  },
-  {
-    id: 1,
-    title: "Top 10 Cybersecurity Threats to Watch in 2025",
-    excerpt: "As technology evolves, so do cyber threats. Learn about the latest attack vectors and how to protect your organization from emerging risks.",
-    author: "CyberHawk Team",
-    date: "December 28, 2024",
-    category: "Threat Intelligence",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
-    readTime: "5 min read",
-  },
-  {
-    id: 2,
-    title: "Why Your Business Needs a Security Operations Center",
-    excerpt: "Discover the benefits of having a dedicated SOC and how it can significantly improve your organization's security posture and incident response times.",
-    author: "Security Analyst",
-    date: "December 20, 2024",
-    category: "Security Operations",
-    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80",
-    readTime: "7 min read",
-  },
-  {
-    id: 3,
-    title: "The Essential Guide to Employee Security Training",
-    excerpt: "Human error remains the leading cause of data breaches. Learn how to implement effective security awareness training that actually works.",
-    author: "Training Team",
-    date: "December 15, 2024",
-    category: "Training",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
-    readTime: "6 min read",
-  },
-  {
-    id: 4,
-    title: "Understanding Zero Trust Architecture",
-    excerpt: "Zero Trust is more than a buzzword. Explore the principles behind this security model and how to implement it in your organization.",
-    author: "CyberHawk Team",
-    date: "December 10, 2024",
-    category: "Architecture",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80",
-    readTime: "8 min read",
-  },
-  {
-    id: 5,
-    title: "Incident Response: What to Do When You've Been Breached",
-    excerpt: "A step-by-step guide to handling security incidents effectively. Minimize damage and recover faster with proper incident response procedures.",
-    author: "Incident Response Team",
-    date: "December 5, 2024",
-    category: "Incident Response",
-    image: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&q=80",
-    readTime: "10 min read",
-  },
-  {
-    id: 6,
-    title: "Cloud Security Best Practices for 2025",
-    excerpt: "As more businesses migrate to the cloud, security challenges evolve. Learn the essential practices to secure your cloud infrastructure.",
-    author: "Cloud Security Expert",
-    date: "November 28, 2024",
-    category: "Cloud Security",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80",
-    readTime: "6 min read",
-  },
-];
-
-const categories = [
-  "All",
-  "CyberHawk UG",
-  "Threat Intelligence",
-  "Security Operations",
-  "Training",
-  "Cloud Security",
-  "Incident Response",
-];
+import { blogPosts, categories } from "@/data/blogPosts";
 
 const Blog = () => {
   return (
@@ -110,6 +28,7 @@ const Blog = () => {
             author: { "@type": "Person", name: post.author },
             datePublished: post.date,
             articleSection: post.category,
+            url: `https://cyberhawk.lovable.app/blog/${post.slug}`,
           })),
         }}
       />
@@ -157,13 +76,16 @@ const Blog = () => {
                 key={post.id}
                 className="group bg-card rounded-2xl overflow-hidden border border-border shadow-soft hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
               >
-                <div className="aspect-video overflow-hidden">
-                  <img
-                    src={post.image}
-                    alt={post.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                </div>
+                <Link to={`/blog/${post.slug}`}>
+                  <div className="aspect-video overflow-hidden">
+                    <img
+                      src={post.image}
+                      alt={post.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                      loading="lazy"
+                    />
+                  </div>
+                </Link>
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-3">
                     <span className="inline-flex items-center gap-1 text-xs font-medium text-primary bg-primary/10 px-2.5 py-1 rounded-full">
@@ -172,9 +94,11 @@ const Blog = () => {
                     </span>
                     <span className="text-xs text-muted-foreground">{post.readTime}</span>
                   </div>
-                  <h2 className="font-display text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
-                    {post.title}
-                  </h2>
+                  <Link to={`/blog/${post.slug}`}>
+                    <h2 className="font-display text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors line-clamp-2">
+                      {post.title}
+                    </h2>
+                  </Link>
                   <p className="text-muted-foreground text-sm mb-4 line-clamp-3">
                     {post.excerpt}
                   </p>
@@ -190,20 +114,16 @@ const Blog = () => {
                       </span>
                     </div>
                   </div>
-                  <button className="mt-4 inline-flex items-center gap-2 text-primary font-medium text-sm group/btn">
+                  <Link
+                    to={`/blog/${post.slug}`}
+                    className="mt-4 inline-flex items-center gap-2 text-primary font-medium text-sm group/btn"
+                  >
                     Read More
                     <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                  </button>
+                  </Link>
                 </div>
               </article>
             ))}
-          </div>
-
-          {/* Load More */}
-          <div className="text-center mt-12">
-            <button className="bg-secondary text-foreground px-8 py-3 rounded-lg font-semibold hover:bg-secondary/80 transition-colors">
-              Load More Articles
-            </button>
           </div>
         </div>
       </section>
