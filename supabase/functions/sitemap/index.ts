@@ -13,6 +13,17 @@ const staticPages = [
   { loc: "/ebooks", changefreq: "weekly", priority: "0.7" },
 ];
 
+// Static blog post slugs — keep in sync with src/data/blogPosts.ts
+const blogSlugs = [
+  "cyberhawk-ug-uganda-trusted-cybersecurity-partner-2025",
+  "top-10-cybersecurity-threats-2025",
+  "why-your-business-needs-security-operations-center",
+  "essential-guide-employee-security-training",
+  "understanding-zero-trust-architecture",
+  "incident-response-what-to-do-when-breached",
+  "cloud-security-best-practices-2025",
+];
+
 Deno.serve(async () => {
   const supabase = createClient(
     Deno.env.get("SUPABASE_URL")!,
@@ -40,6 +51,17 @@ Deno.serve(async () => {
     <priority>${p.priority}</priority>
   </url>`,
   );
+
+  // Add blog post URLs
+  for (const slug of blogSlugs) {
+    urlEntries.push(
+      `  <url>
+    <loc>${BASE_URL}/blog/${slug}</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+  </url>`,
+    );
+  }
 
   if (ebooks) {
     for (const ebook of ebooks) {
