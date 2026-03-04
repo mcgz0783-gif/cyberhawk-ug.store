@@ -2,78 +2,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Calendar, User, ArrowRight, Tag } from "lucide-react";
 import { Link } from "react-router-dom";
-
-const blogPosts = [
-  {
-    id: 1,
-    title: "Top 10 Cybersecurity Threats to Watch in 2025",
-    excerpt: "As technology evolves, so do cyber threats. Learn about the latest attack vectors and how to protect your organization from emerging risks.",
-    author: "CyberHawk Team",
-    date: "December 28, 2024",
-    category: "Threat Intelligence",
-    image: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=800&q=80",
-    readTime: "5 min read",
-  },
-  {
-    id: 2,
-    title: "Why Your Business Needs a Security Operations Center",
-    excerpt: "Discover the benefits of having a dedicated SOC and how it can significantly improve your organization's security posture and incident response times.",
-    author: "Security Analyst",
-    date: "December 20, 2024",
-    category: "Security Operations",
-    image: "https://images.unsplash.com/photo-1563986768609-322da13575f3?w=800&q=80",
-    readTime: "7 min read",
-  },
-  {
-    id: 3,
-    title: "The Essential Guide to Employee Security Training",
-    excerpt: "Human error remains the leading cause of data breaches. Learn how to implement effective security awareness training that actually works.",
-    author: "Training Team",
-    date: "December 15, 2024",
-    category: "Training",
-    image: "https://images.unsplash.com/photo-1552664730-d307ca884978?w=800&q=80",
-    readTime: "6 min read",
-  },
-  {
-    id: 4,
-    title: "Understanding Zero Trust Architecture",
-    excerpt: "Zero Trust is more than a buzzword. Explore the principles behind this security model and how to implement it in your organization.",
-    author: "CyberHawk Team",
-    date: "December 10, 2024",
-    category: "Architecture",
-    image: "https://images.unsplash.com/photo-1558494949-ef010cbdcc31?w=800&q=80",
-    readTime: "8 min read",
-  },
-  {
-    id: 5,
-    title: "Incident Response: What to Do When You've Been Breached",
-    excerpt: "A step-by-step guide to handling security incidents effectively. Minimize damage and recover faster with proper incident response procedures.",
-    author: "Incident Response Team",
-    date: "December 5, 2024",
-    category: "Incident Response",
-    image: "https://images.unsplash.com/photo-1504639725590-34d0984388bd?w=800&q=80",
-    readTime: "10 min read",
-  },
-  {
-    id: 6,
-    title: "Cloud Security Best Practices for 2025",
-    excerpt: "As more businesses migrate to the cloud, security challenges evolve. Learn the essential practices to secure your cloud infrastructure.",
-    author: "Cloud Security Expert",
-    date: "November 28, 2024",
-    category: "Cloud Security",
-    image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=800&q=80",
-    readTime: "6 min read",
-  },
-];
-
-const categories = [
-  "All",
-  "Threat Intelligence",
-  "Security Operations",
-  "Training",
-  "Cloud Security",
-  "Incident Response",
-];
+import { blogPosts, categories } from "@/data/blogPosts";
 
 const Blog = () => {
   return (
@@ -117,9 +46,10 @@ const Blog = () => {
         <div className="container mx-auto px-6">
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {blogPosts.map((post) => (
-              <article
+              <Link
                 key={post.id}
-                className="group bg-card rounded-2xl overflow-hidden border border-border shadow-soft hover:shadow-elevated transition-all duration-300 hover:-translate-y-1"
+                to={`/blog/${post.slug}`}
+                className="group bg-card rounded-2xl overflow-hidden border border-border shadow-soft hover:shadow-elevated transition-all duration-300 hover:-translate-y-1 no-underline"
               >
                 <div className="aspect-video overflow-hidden">
                   <img
@@ -154,20 +84,13 @@ const Blog = () => {
                       </span>
                     </div>
                   </div>
-                  <button className="mt-4 inline-flex items-center gap-2 text-primary font-medium text-sm group/btn">
+                  <div className="mt-4 inline-flex items-center gap-2 text-primary font-medium text-sm group-hover/link:gap-3 transition-all">
                     Read More
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover/btn:translate-x-1" />
-                  </button>
+                    <ArrowRight className="w-4 h-4 transition-transform group-hover/link:translate-x-1" />
+                  </div>
                 </div>
-              </article>
+              </Link>
             ))}
-          </div>
-
-          {/* Load More */}
-          <div className="text-center mt-12">
-            <button className="bg-secondary text-foreground px-8 py-3 rounded-lg font-semibold hover:bg-secondary/80 transition-colors">
-              Load More Articles
-            </button>
           </div>
         </div>
       </section>
