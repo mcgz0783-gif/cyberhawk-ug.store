@@ -163,6 +163,50 @@ const BlogPost = () => {
               Contact Us
             </Link>
           </div>
+
+          {/* Related Posts */}
+          {(() => {
+            const related = blogPosts
+              .filter((p) => p.slug !== post.slug)
+              .sort((a, b) => (a.category === post.category ? -1 : 0) - (b.category === post.category ? -1 : 0))
+              .slice(0, 3);
+            return related.length > 0 ? (
+              <section className="mt-16 pt-12 border-t border-border">
+                <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-8">
+                  Related Articles
+                </h2>
+                <div className="grid md:grid-cols-3 gap-6">
+                  {related.map((r) => (
+                    <Link
+                      key={r.slug}
+                      to={`/blog/${r.slug}`}
+                      className="group rounded-xl overflow-hidden border border-border bg-card hover:shadow-elevated transition-all duration-300"
+                    >
+                      <div className="aspect-video overflow-hidden">
+                        <img
+                          src={r.image}
+                          alt={r.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          loading="lazy"
+                        />
+                      </div>
+                      <div className="p-4">
+                        <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded-full">
+                          {r.category}
+                        </span>
+                        <h3 className="font-display font-semibold text-foreground mt-3 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                          {r.title}
+                        </h3>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {r.excerpt}
+                        </p>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </section>
+            ) : null;
+          })()}
         </div>
       </article>
 
