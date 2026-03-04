@@ -2,6 +2,15 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const BASE_URL = "https://cyberhawk.lovable.app";
 
+function escapeXml(unsafe: string): string {
+  return unsafe
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
+}
+
 const staticPages = [
   { loc: "/", changefreq: "weekly", priority: "1.0" },
   { loc: "/services", changefreq: "monthly", priority: "0.9" },
@@ -70,7 +79,7 @@ Deno.serve(async () => {
         : "";
       urlEntries.push(
         `  <url>
-    <loc>${BASE_URL}/ebooks/${ebook.slug}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
+    <loc>${BASE_URL}/ebooks/${escapeXml(ebook.slug)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>`,
@@ -85,7 +94,7 @@ Deno.serve(async () => {
         : "";
       urlEntries.push(
         `  <url>
-    <loc>${BASE_URL}/shop/products?product=${product.id}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
+    <loc>${BASE_URL}/shop/products?product=${escapeXml(product.id)}</loc>${lastmod ? `\n    <lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>`,
