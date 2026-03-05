@@ -8,4 +8,4 @@ Disallow: /shop/login
 Disallow: /shop/auth
 Disallow: /ebooks/auth
 
-Sitemap: https://cyberhawk.lovable.app/sitemap.xml
+Sitemap: https://cyberhawk-ug.lovable.app/sitemap.xml
