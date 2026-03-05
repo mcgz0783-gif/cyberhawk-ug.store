@@ -33,14 +33,14 @@ const BlogPost = () => {
             name: "CyberHawk UG",
             logo: {
               "@type": "ImageObject",
-              url: "https://cyberhawk.lovable.app/og-images/og-home.png",
+              url: "https://www.cyberhawk-ug.store/og-images/og-home.png",
             },
           },
           datePublished: post.date,
           articleSection: post.category,
           mainEntityOfPage: {
             "@type": "WebPage",
-            "@id": `https://cyberhawk.lovable.app/blog/${post.slug}`,
+            "@id": `https://www.cyberhawk-ug.store/blog/${post.slug}`,
           },
         }}
       />

@@ -43,7 +43,7 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    const appUrl = Deno.env.get("PUBLIC_APP_URL") || "https://cyberhawk.lovable.app";
+    const appUrl = Deno.env.get("PUBLIC_APP_URL") || "https://www.cyberhawk-ug.store";
 
     // Create pending purchase record
     const tx_ref = `ebook-${ebook_id}-${Date.now()}`;
