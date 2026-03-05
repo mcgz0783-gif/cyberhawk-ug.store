@@ -9,7 +9,7 @@ interface SEOHeadProps {
   jsonLd?: Record<string, unknown> | Record<string, unknown>[];
 }
 
-const BASE_URL = "https://cyberhawk.lovable.app";
+const BASE_URL = "https://www.cyberhawk-ug.store";
 
 const SEOHead = ({ title, description, canonical, type = "website", ogImage, jsonLd }: SEOHeadProps) => {
   const fullTitle = title === "Home" ? "CyberHawk UG - Sharp Vision in Cybersecurity" : `${title} | CyberHawk UG`;

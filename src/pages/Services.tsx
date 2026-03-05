@@ -60,7 +60,7 @@ const Services = () => {
           provider: {
             "@type": "Organization",
             name: "CyberHawk UG",
-            url: "https://cyberhawk.lovable.app",
+            url: "https://www.cyberhawk-ug.store",
           },
           areaServed: { "@type": "Country", name: "Uganda" },
           hasOfferCatalog: {

@@ -19,7 +19,7 @@ interface PageBreadcrumbProps {
   items: BreadcrumbItemData[];
 }
 
-const BASE_URL = "https://cyberhawk.lovable.app";
+const BASE_URL = "https://www.cyberhawk-ug.store";
 
 const PageBreadcrumb = ({ items }: PageBreadcrumbProps) => {
   // Inject JSON-LD BreadcrumbList schema

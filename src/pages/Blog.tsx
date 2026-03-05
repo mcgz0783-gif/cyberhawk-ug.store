@@ -19,7 +19,7 @@ const Blog = () => {
           "@context": "https://schema.org",
           "@type": "Blog",
           name: "CyberHawk UG Cybersecurity Blog",
-          url: "https://cyberhawk.lovable.app/blog",
+          url: "https://www.cyberhawk-ug.store/blog",
           publisher: { "@type": "Organization", name: "CyberHawk UG" },
           blogPost: blogPosts.map((post) => ({
             "@type": "BlogPosting",
@@ -28,7 +28,7 @@ const Blog = () => {
             author: { "@type": "Person", name: post.author },
             datePublished: post.date,
             articleSection: post.category,
-            url: `https://cyberhawk.lovable.app/blog/${post.slug}`,
+            url: `https://www.cyberhawk-ug.store/blog/${post.slug}`,
           })),
         }}
       />

@@ -1,6 +1,6 @@
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-const BASE_URL = "https://cyberhawk-ug.lovable.app";
+const BASE_URL = "https://www.cyberhawk-ug.store";
 
 function escapeXml(unsafe: string): string {
   return unsafe
